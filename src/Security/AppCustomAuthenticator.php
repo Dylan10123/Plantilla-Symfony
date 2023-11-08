@@ -29,7 +29,9 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
     public function authenticate(Request $request): Passport
     {
         $username = $request->request->get('username', '');
-
+        
+        // dump($username);
+        // exit;
         $request->getSession()->set(Security::LAST_USERNAME, $username);
 
         return new Passport(
@@ -49,8 +51,21 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         // For example:
-        // return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+
+        // $session = $request->getSession();
+        // $volverA = $session->get('returnTo');
+        // $codigo = $session->get('codigo');
+
+        // if ($volverA) {
+        //     if ($codigo) {
+        //         return new RedirectResponse($this->urlGenerator->generate($volverA, ['codigo' => $codigo]));
+        //     }
+
+        //     return new RedirectResponse($this->urlGenerator->generate($volverA));
+        // }
+
+        return new RedirectResponse($this->urlGenerator->generate('index'));
+        throw new \Exception('TODO: provide a valid redirect inside ' . __FILE__);
     }
 
     protected function getLoginUrl(Request $request): string

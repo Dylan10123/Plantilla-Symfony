@@ -21,6 +21,17 @@
 				<li class="nav-item">
 					<a class="nav-link {{ (app.request.attributes.get('_route') == 'contact')  ? 'active': ''}}" href="{{ path('contact') }}">Contact</a>
 				</li>
+
+				{% if app.user %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ path('app_logout') }}">Log out</a>
+					</li>
+				{% else %}
+					<li class="nav-item">
+						<a class="nav-link {{ (app.request.attributes.get('_route') == 'app_login')  ? 'active': ''}}" href="{{ path('app_login') }}">Log in</a>
+					</li>
+				{% endif %}
+
 			</ul>
 		</div>
 	</div>

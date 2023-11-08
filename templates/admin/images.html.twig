@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Project{% endblock %}
+
+{% block tituloHeader %}Add a new project{% endblock %}
+
+{% block body %}
+	<div id="images">
+		<div class="container">
+			<div class="col-xs-12 col-sm-8 col-sm-push-2">
+				<h1>Images</h1>
+				{{ form(form, {'attr': {'class':'form-horizontal'}}) }}
+					<hr class="divider">
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
