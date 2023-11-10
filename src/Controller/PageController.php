@@ -15,6 +15,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Entity\Contact;
+use App\Form\ContactFormType;
 
 class PageController extends AbstractController
 {
@@ -61,18 +63,38 @@ class PageController extends AbstractController
         return $this->render('page/portfolio.html.twig', ['images' => $imagenes]);
     }
 
-    #[Route('/contact', name: 'contact')]
-    public function contact(SessionInterface $session, $firewall = 'main'): Response
-    {
-        $this->saveTargetPath($session, $firewall, $this->generateUrl('contact'));
-        $this->denyAccessUnlessGranted("ROLE_USER");
+    // #[Route('/contact', name: 'contact')]
+    // public function contact(SessionInterface $session, $firewall = 'main'): Response
+    // {
+    //     $this->saveTargetPath($session, $firewall, $this->generateUrl('contact'));
+    //     $this->denyAccessUnlessGranted("ROLE_USER");
 
-        return $this->render('page/contact.html.twig', []);
+    //     return $this->render('page/contact.html.twig', []);
+    // }
+
+    #[Route('/contact', name: 'contact')]
+    public function contact(ManagerRegistry $doctrine, Request $request): Response
+    {
+        $contact = new Contact();
+        $form = $this->createForm(ContactFormType::class, $contact);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $contacto = $form->getData();    
+            $entityManager = $doctrine->getManager();    
+            $entityManager->persist($contacto);
+            $entityManager->flush();
+            return $this->redirectToRoute('thankyou', []);
+        }
+        return $this->render('page/contact.html.twig', array(
+            'form' => $form->createView()    
+        ));
     }
     
     #[Route('/admin/images', name: 'add_images')]
-    public function images(ManagerRegistry $doctrine, Request $request): Response
+    public function images(ManagerRegistry $doctrine, Request $request, SluggerInterface $slugger): Response
     {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
         $image = new Image();
         $form = $this->createForm(ImageFormType::class, $image);
         $form->handleRequest($request);
@@ -91,26 +113,31 @@ class PageController extends AbstractController
                         $this->getParameter('images_directory'), $newFilename
                     );
                     $filesystem = new Filesystem();
-                    $filesystem->copy(
-                        $this->getParameter('images_directory') . '/'. $newFilename, 
-                        $this->getParameter('portfolio_directory') . '/'.  $newFilename, true);
+                    $sourcePath = $this->getParameter('images_directory')  . '/'. $newFilename;
+                    $destinationPath = 'images/' . $newFilename;
+
+                    $filesystem->copy($sourcePath, $destinationPath); 
         
                 } catch (FileException $e) {
                     // ... handle exception if something happens during file upload
                 }
-        
-                // updates the 'file$filename' property to store the PDF file name
-                // instead of its contents
                 $image->setFile($newFilename);
             }
             $image = $form->getData();   
             $entityManager = $doctrine->getManager();    
             $entityManager->persist($image);
             $entityManager->flush();
+            return $this->redirectToRoute('portfolio', []);
         }
         return $this->render('admin/images.html.twig', array(
                     'form' => $form->createView(),
                     'image' => $image  
                 ));
+    }
+
+    #[Route('/thankyou', name: 'thankyou')]
+    public function thankyou(): Response
+    {
+         return $this->render('page/thankyou.html.twig');
     }
 }

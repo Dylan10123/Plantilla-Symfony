@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% block title %}Creative - Portfolio{% endblock %}
 {% block tituloHeader %}Portfolio
 {% endblock %}
 {% block body %}
@@ -16,7 +17,7 @@
 			<div class="row g-0">
 				{% for image in images %}
 					<div class="col-lg-4 col-sm-6">
-						<a class="portfolio-box" href="assets/img/portfolio/fullsize/1.jpg" title="Project Name">
+						<a class="portfolio-box" href="{{ asset('images/' ~ image.file) }}" title="{{ image.projectName }}">
 							<img class="img-fluid" src="{{ asset('images/' ~ image.file) }}" alt="..."/>
 							<div class="portfolio-box-caption">
 								<div class="project-category text-white-50">{{ image.category.name }}</div>
